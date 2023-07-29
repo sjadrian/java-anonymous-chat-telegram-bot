@@ -18,13 +18,9 @@ public class JavaBot extends TelegramLongPollingBot {
     private final List<Session> sessions = new ArrayList<>();
     private final Object lock = new Object();
     private final Properties properties = new Properties();
-    private String BOT_TOKEN;
-    private String BOT_USERNAME;
 
     public JavaBot() {
         getBotData();
-        this.BOT_USERNAME =  properties.getProperty("BOT_USERNAME");
-        this.BOT_TOKEN =  properties.getProperty("BOT_TOKEN");
     }
 
     private void getBotData() {
@@ -37,12 +33,12 @@ public class JavaBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return BOT_USERNAME;
+        return properties.getProperty("BOT_USERNAME");
     }
 
     @Override
     public String getBotToken() {
-        return BOT_TOKEN ;
+        return properties.getProperty("BOT_TOKEN");
     }
 
     @Override
@@ -63,8 +59,11 @@ public class JavaBot extends TelegramLongPollingBot {
 
             // get message
             String sentText = update.getMessage().getText();
-
-            if (sentText.equals("/search") && partnerId != null) {
+            if (sentText.equals("/start") && partnerId == null) {
+                sendMessageWelcome(myId);
+            } else if (sentText.equals("/start") && partnerId != null) {
+                sendMessageHasPartner(myId);
+            } else if (sentText.equals("/search") && partnerId != null) {
                 sendMessageHasPartner(myId);
             } else if (sentText.equals("/search") && !allSearchingID.contains(myId)) {
                 searching(myId);
@@ -91,21 +90,22 @@ public class JavaBot extends TelegramLongPollingBot {
             sendPhoto(fileID, partnerId);
         }
 
-        if (update.hasMessage() && update.getMessage().hasAnimation()) {
-            Animation animation = update.getMessage().getAnimation();
-            SendAnimation sendAnimation = new SendAnimation();
-
-            if (partnerId != null) {
-                sendAnimation.setChatId(partnerId);
-                sendAnimation.setAnimation(new InputFile(animation.getFileId()));
-
-                try {
-                    execute(sendAnimation);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        if (update.hasMessage() && update.getMessage().hasAnimation()) {
+//            Animation animation = update.getMessage().getAnimation();
+//            SendAnimation sendAnimation = new SendAnimation();
+//
+//            if (partnerId != null) {
+//                sendAnimation.setChatId(partnerId);
+//                sendAnimation.setAnimation(new InputFile(animation.getFileId()));
+//
+//                try {
+//                    execute(sendAnimation);
+//                    System.out.println("animation called");
+//                } catch (TelegramApiException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
         if (update.hasMessage() && update.getMessage().hasSticker()) {
             Sticker sticker = update.getMessage().getSticker();
@@ -117,6 +117,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendSticker);
+                    System.out.println("sticker called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -133,6 +134,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendAudio);
+                    System.out.println("audio called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -149,6 +151,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendVideo);
+                    System.out.println("video called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -168,6 +171,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendContact);
+                    System.out.println("contact called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -185,6 +189,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendDocument);
+                System.out.println("document called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -201,6 +206,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendVoice);
+                System.out.println("voice called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -217,6 +223,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendVideoNote);
+                System.out.println("videonote called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -234,6 +241,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendLocation);
+                System.out.println("location called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -290,6 +298,11 @@ public class JavaBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void sendMessageWelcome(long myId) {
+        String text = "Welcome to Anonymous Chat \nType /search to find a new partner";
+        sendMessage(text, myId);
     }
 
     private void sendMessageHasPartner(long myId) {
