@@ -4,7 +4,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.*;
@@ -59,6 +58,8 @@ public class JavaBot extends TelegramLongPollingBot {
 
             // get message
             String sentText = update.getMessage().getText();
+
+            // process message
             if (sentText.equals("/start") && partnerId == null) {
                 sendMessageWelcome(myId);
             } else if (sentText.equals("/start") && partnerId != null) {
@@ -90,23 +91,6 @@ public class JavaBot extends TelegramLongPollingBot {
             sendPhoto(fileID, partnerId);
         }
 
-//        if (update.hasMessage() && update.getMessage().hasAnimation()) {
-//            Animation animation = update.getMessage().getAnimation();
-//            SendAnimation sendAnimation = new SendAnimation();
-//
-//            if (partnerId != null) {
-//                sendAnimation.setChatId(partnerId);
-//                sendAnimation.setAnimation(new InputFile(animation.getFileId()));
-//
-//                try {
-//                    execute(sendAnimation);
-//                    System.out.println("animation called");
-//                } catch (TelegramApiException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-
         if (update.hasMessage() && update.getMessage().hasSticker()) {
             Sticker sticker = update.getMessage().getSticker();
             SendSticker sendSticker = new SendSticker();
@@ -117,7 +101,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendSticker);
-                    System.out.println("sticker called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -134,7 +117,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendAudio);
-                    System.out.println("audio called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -151,7 +133,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
                 try {
                     execute(sendVideo);
-                    System.out.println("video called");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
@@ -189,7 +170,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendDocument);
-                System.out.println("document called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -206,7 +186,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendVoice);
-                System.out.println("voice called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -223,7 +202,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendVideoNote);
-                System.out.println("videonote called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -241,13 +219,11 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 execute(sendLocation);
-                System.out.println("location called");
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
     }
-
     private void searching(Long myId) {
         sendMessageInitialSearching(myId);
 
@@ -265,7 +241,6 @@ public class JavaBot extends TelegramLongPollingBot {
             sendMessageSearchResponse(result != null, myId);
         });
     }
-
     private void stop(Long myId) {
         // stop chat with current partner
         Session matchedSession = null;
@@ -280,13 +255,11 @@ public class JavaBot extends TelegramLongPollingBot {
         sessions.remove(matchedSession);
         sendMessageStop(myId, partnerId, matchedSession != null);
     }
-
     private void next(long myId) {
         // stop chat with current partner and search for a new partner
         stop(myId);
         searching(myId);
     }
-
     private void sendMessage(String text, Long recipientID) {
         SendMessage message = new SendMessage();
         message.setText(text);
@@ -299,27 +272,22 @@ public class JavaBot extends TelegramLongPollingBot {
             }
         }
     }
-
     private void sendMessageWelcome(long myId) {
         String text = "Welcome to Anonymous Chat \nType /search to find a new partner";
         sendMessage(text, myId);
     }
-
     private void sendMessageHasPartner(long myId) {
         String text = "Currently you have a partner \n /stop - stop this conversation";
         sendMessage(text, myId);
     }
-
     private void sendMessageStillSearching(long myId) {
         String text = "Currently Searching is still in process please wait";
         sendMessage(text, myId);
     }
-
     private void sendMessageInitialSearching(Long myId) {
         String text = "Looking for a new chat...";
         sendMessage(text, myId);
     }
-
     private void sendMessageStop(Long myId, Long partnerId, Boolean connected) {
         if (connected) {
             String message_self = "You stopped the chat\nType /search to find a new partner";
@@ -333,7 +301,6 @@ public class JavaBot extends TelegramLongPollingBot {
             sendMessage(message_text, myId);
         }
     }
-
     private void sendMessageSearchResponse(boolean b, Long myId) {
         String message_text = null;
 
@@ -346,7 +313,6 @@ public class JavaBot extends TelegramLongPollingBot {
             sendMessage(message_text , myId);
         }
     }
-
     private void sendPhoto(String fileID, Long recipientID) {
         SendPhoto sendPhoto = new SendPhoto();
 
@@ -361,32 +327,24 @@ public class JavaBot extends TelegramLongPollingBot {
             }
         }
     }
-
     public void findId(Long myId) {
         Long partnerId;
 
-        System.out.println("Currently Searching myId: " + myId);
-
         if (!allSearchingID.isEmpty()) {
-//                partnerId = allSearchingID.remove(0);
             partnerId = allSearchingID.pop();
 
             synchronized (lock) {
                 sessions.add(new Session(myId, partnerId));
             }
-
-            System.out.println("Search Ends. Match Found. myId: " + myId + " partnerId: " + partnerId);
             return;
         }
 
         allSearchingID.add(myId);
 
         long t = System.currentTimeMillis();
-        long end = t + 3000; // search max time = 3s
+        long end = t + 15000; // search max time = 15s
 
         while (System.currentTimeMillis() < end) {
-
-            System.out.println("myId: " + myId + " Size sessions: " + sessions.size());
 
             Session matchedSession;
 
@@ -399,7 +357,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
             if (matchedSession != null) {
                 allSearchingID.remove(myId);
-                System.out.println("Search Ends. Match Found. myId: " + myId + " partnerId: " + matchedSession.getPartner(myId));
                 return;
             }
 
@@ -410,6 +367,5 @@ public class JavaBot extends TelegramLongPollingBot {
             }
         }
         allSearchingID.remove(myId);
-        System.out.println("Search Ends. Match Not Found. myId: " + myId);
     }
 }
