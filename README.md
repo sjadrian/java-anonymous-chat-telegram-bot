@@ -21,6 +21,11 @@ I firmly believe that engaging in conversations with others can lead to valuable
 * Search: Find a new partner
 * Stop: Stop current chat
 * Next: Stop current chat and find a new partner
+
+## How to Bulild this Project
+You will need:
+1. Your own Telegram Bot Username and API key.
+2. Your own config file to store the bot username and key
    
 ## Screenshots
 ![AnonymousFriend](https://github.com/sjadrian/java-anonymous-chat-telegram-bot/assets/93874977/d927e2b0-59a3-414d-a859-4e2ff5d4debe)
